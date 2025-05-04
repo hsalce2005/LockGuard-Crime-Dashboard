@@ -3,7 +3,6 @@ let globalData = {};
 let availableFiles = [
   "ArizonaStateUniversity.csv",
   "BostonUniversity.csv",
-  "BrownUniversity.csv",
   "DrexelUniversity.csv",
   "EmoryUniversity.csv",
   "FIU.csv",
@@ -11,9 +10,9 @@ let availableFiles = [
   "HarvardUniversity.csv",
   "IndianaUniversity.csv",
   "MichiganStateUniversity.csv",
-  "NYU.csv",
   "NortheasternUniversity.csv",
-  "OhioStateUniversity.csv",
+  "NYU.csv",
+  "OhioState.csv",
   "PennState.csv",
   "PrincetonUniversity.csv",
   "PurdueUniversity.csv",
@@ -21,29 +20,23 @@ let availableFiles = [
   "RutgersUniversity.csv",
   "TempleUniversity.csv",
   "TexasA&M.csv",
-  "UCBerkley.csv",
   "UCDavis.csv",
-  "UCF.csv",
-  "UCLA.csv",
   "UCRiverside.csv",
-  "UCSD.csv",
   "UChicago.csv",
-  "UConn.csv",
-  "UMassAmherst.csv",
-  "UVA.csv",
-  "UniversityOfAlabama.csv",
-  "UniversityOfArizona.csv",
+  "UniversityOfCincinnatti.csv",
+  "UCLA.csv",
+  "UCSD.csv",
   "UniversityOfFlorida.csv",
-  "UniversityOfMichigan.csv",
+  "UMich.csv",
+  "UniversityOfArizona.csv",
   "UniversityOfMinnesota.csv",
   "UniversityOfNewMexico.csv",
-  "UniversityOfPennsylvania.csv",
-  "UniversityOfSouthCalifornia.csv",
-  "UniversityOfSouthCarolina.csv",
   "UniversityOfWashington.csv",
-  "UniversityOfWisconsin-Madison.csv",
-  "UniversityofCincinnati.csv",
-  "VirginiaTech.csv"
+  "UPenn.csv",
+  "USC.csv",
+  "UniversityOfVirginia.csv",
+  "VirginiaTech.csv",
+  "UniversityOfWisconsin-Madison.csv"
 ];
 
 // Initialize the dashboard
@@ -230,16 +223,50 @@ function loadSingleFile(filename) {
                     console.log(`Parsing CSV data for ${filename} (first 100 chars):`, text.substring(0, 100));
                     
                     try {
-                        // Parse CSV data using Papa Parse
-                        const result = Papa.parse(text, { header: true, dynamicTyping: true });
+                        // Parse CSV data using Papa Parse with more robust options
+                        const result = Papa.parse(text, { 
+                            header: true, 
+                            dynamicTyping: true, 
+                            skipEmptyLines: true,
+                            delimitersToGuess: [',', '\t', '|', ';'] // Try different delimiters
+                        });
                         
                         if (result.errors && result.errors.length > 0) {
                             console.warn(`Warnings parsing ${filename}:`, result.errors);
                         }
                         
-                        const validRecords = result.data.filter(record => 
-                            record && Object.keys(record).length > 1)
-                            .map(record => ({...record, 'Source File': filename}));
+                        // Clean up column names by trimming whitespace
+                        if (result.meta && result.meta.fields) {
+                            const trimmedFieldsMap = {};
+                            result.meta.fields.forEach(field => {
+                                trimmedFieldsMap[field] = field.trim();
+                            });
+                            
+                            // Apply trimmed field names to data
+                            result.data = result.data.map(record => {
+                                const cleanedRecord = {};
+                                Object.keys(record).forEach(key => {
+                                    const cleanKey = key.trim();
+                                    cleanedRecord[cleanKey] = record[key];
+                                });
+                                return cleanedRecord;
+                            });
+                        }
+                        
+                        const validRecords = result.data
+                            .filter(record => record && Object.keys(record).length > 1)
+                            .map(record => {
+                                // Add source file and ensure all records have the same structure
+                                return {
+                                    ...record, 
+                                    'Source File': filename,
+                                    // Ensure critical fields exist
+                                    'Incident Type': record['Incident Type'] || 'Unknown',
+                                    'Date/Time Occurred': record['Date/Time Occurred'] || 'Unknown',
+                                    'Location': record['Location'] || 'Unknown',
+                                    'Disposition': record['Disposition'] || 'Unknown'
+                                };
+                            });
                             
                         if (validRecords.length === 0) {
                             console.error(`File ${filename} was loaded but contains no valid data records`);
@@ -284,7 +311,12 @@ function debugData(data) {
 
 
 function populateCrimeTypes(data) {
-    const crimeTypes = [...new Set(data.records.map(record => record['Incident Type']))];
+    // Get all unique incident types, filter out nulls and empty strings
+    const crimeTypes = [...new Set(
+        data.records
+            .map(record => record['Incident Type'])
+            .filter(type => type !== null && type !== undefined && type !== '')
+    )];
     crimeTypes.sort();
 
     const crimeTypeSelector = document.getElementById('crimeTypeSelector');
@@ -296,15 +328,17 @@ function populateCrimeTypes(data) {
     
     // Add options
     crimeTypes.forEach(crimeType => {
-        const option1 = document.createElement('option');
-        option1.value = crimeType;
-        option1.textContent = crimeType;
-        crimeTypeSelector.appendChild(option1);
-        
-        const option2 = document.createElement('option');
-        option2.value = crimeType;
-        option2.textContent = crimeType;
-        timeCrimeTypeSelector.appendChild(option2);
+        if (crimeType) { // Additional check to ensure value isn't empty
+            const option1 = document.createElement('option');
+            option1.value = crimeType;
+            option1.textContent = crimeType;
+            crimeTypeSelector.appendChild(option1);
+            
+            const option2 = document.createElement('option');
+            option2.value = crimeType;
+            option2.textContent = crimeType;
+            timeCrimeTypeSelector.appendChild(option2);
+        }
     });
     
     setupDateSelectors(data);
@@ -312,11 +346,23 @@ function populateCrimeTypes(data) {
 
 
 function setupDateSelectors(data) {
-    // Extract dates and find min/max
-    const dates = data.records.map(record => new Date(record['Date/Time Occurred'].split(' ')[0]));
+    // Extract dates and find min/max, handling possible null values
+    const dates = data.records
+        .map(record => {
+            if (!record['Date/Time Occurred']) return null;
+            const datePart = record['Date/Time Occurred'].split(' ')[0];
+            const date = new Date(datePart);
+            // Check if date is valid
+            return isNaN(date.getTime()) ? null : date;
+        })
+        .filter(date => date !== null);
+    
     dates.sort((a, b) => a - b);
     
-    if (dates.length === 0) return;
+    if (dates.length === 0) {
+        console.warn("No valid dates found in the data");
+        return;
+    }
     
     const minDate = dates[0];
     const maxDate = dates[dates.length - 1];
@@ -406,6 +452,9 @@ function updateVisualizations() {
 function createIncidentTypeDistribution(data) {
     const incidentCounts = {};
     data.forEach(record => {
+        // Skip if incident type is missing
+        if (!record['Incident Type']) return;
+        
         const type = record['Incident Type'];
         incidentCounts[type] = (incidentCounts[type] || 0) + 1;
     });
@@ -414,6 +463,12 @@ function createIncidentTypeDistribution(data) {
         .map(([type, count]) => ({ type, count }))
         .filter(item => item.count > 1)
         .sort((a, b) => b.count - a.count);
+    
+    // If no data, display a message
+    if (plotData.length === 0) {
+        displayNoDataMessage('incidentDistributionChart', 'No incident type data available');
+        return;
+    }
     
     const plotlyData = [{
         x: plotData.map(item => item.type),
@@ -457,17 +512,50 @@ function createIncidentTypeDistribution(data) {
     Plotly.newPlot('incidentDistributionChart', plotlyData, layout, config);
 }
 
+// Handle no data available scenario
+function displayNoDataMessage(chartId, message) {
+    const chartDiv = document.getElementById(chartId);
+    if (chartDiv) {
+        Plotly.newPlot(chartId, [], {
+            title: message,
+            annotations: [{
+                text: message,
+                x: 0.5,
+                y: 0.5,
+                xref: 'paper',
+                yref: 'paper',
+                showarrow: false,
+                font: {
+                    size: 16,
+                    color: '#666'
+                }
+            }]
+        });
+    }
+}
 
 function createReportsPerMonth(data, crimeType, startDate, endDate) {
+    // Filter by crime type if specified, ensuring we skip null values
     if (crimeType) {
         data = data.filter(record => record['Incident Type'] === crimeType);
     }
     
     const monthCounts = {};
     data.forEach(record => {
-        const date = new Date(record['Date/Time Occurred'].split(' ')[0]);
-        const month = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2, '0')}`;
-        monthCounts[month] = (monthCounts[month] || 0) + 1;
+        // Skip if date is missing or invalid
+        if (!record['Date/Time Occurred']) return;
+        
+        // Handle potential date parsing issues
+        try {
+            const dateParts = record['Date/Time Occurred'].split(' ')[0].split('/');
+            if (dateParts.length !== 3) return;
+            
+            // Assume MM/DD/YYYY format
+            const month = `${dateParts[2]}-${String(dateParts[0]).padStart(2, '0')}`;
+            monthCounts[month] = (monthCounts[month] || 0) + 1;
+        } catch (e) {
+            console.warn("Error parsing date:", record['Date/Time Occurred']);
+        }
     });
 
     let months = Object.keys(monthCounts).sort();
@@ -476,6 +564,12 @@ function createReportsPerMonth(data, crimeType, startDate, endDate) {
     }
     if (endDate) {
         months = months.filter(month => month <= endDate);
+    }
+
+    // If no data, display a message
+    if (months.length === 0) {
+        displayNoDataMessage('reportsPerMonthChart', 'No monthly report data available for the selected filters');
+        return;
     }
 
     const plotlyData = [{
@@ -520,6 +614,9 @@ function createReportsPerMonth(data, crimeType, startDate, endDate) {
 function createLocationHeatmap(data) {
     const locationCounts = {};
     data.forEach(record => {
+        // Skip if location is missing
+        if (!record['Location']) return;
+        
         const location = record['Location'];
         locationCounts[location] = (locationCounts[location] || 0) + 1;
     });
@@ -528,6 +625,12 @@ function createLocationHeatmap(data) {
         .map(([location, count]) => ({ location, count }))
         .sort((a, b) => b.count - a.count)
         .slice(0, 15);
+    
+    // If no data, display a message
+    if (plotData.length === 0) {
+        displayNoDataMessage('locationHeatmapChart', 'No location data available');
+        return;
+    }
     
     const plotlyData = [{
         x: plotData.map(item => item.count),
@@ -591,12 +694,31 @@ function createDayOfWeekAnalysis(data) {
         'Saturday': 0
     };
     
+    let hasValidDates = false;
+    
     data.forEach(record => {
-        const dateStr = record['Date/Time Occurred'].split(' ')[0];
-        const date = new Date(dateStr);
-        const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
-        weekdayCounts[weekday]++;
+        // Skip if date is missing or invalid
+        if (!record['Date/Time Occurred']) return;
+        
+        try {
+            const dateStr = record['Date/Time Occurred'].split(' ')[0];
+            const date = new Date(dateStr);
+            
+            if (isNaN(date.getTime())) return; // Skip invalid dates
+            
+            hasValidDates = true;
+            const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+            weekdayCounts[weekday]++;
+        } catch (e) {
+            console.warn("Error parsing date for day of week:", record['Date/Time Occurred']);
+        }
     });
+
+    // If no valid dates, display a message
+    if (!hasValidDates) {
+        displayNoDataMessage('dayOfWeekChart', 'No valid date data available for day of week analysis');
+        return;
+    }
 
     const weekdays = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'];
     
@@ -629,23 +751,55 @@ function createDayOfWeekAnalysis(data) {
 
 
 function createTimeAnalysis(data, crimeType) {
+    // Filter by crime type if specified
     if (crimeType) {
         data = data.filter(record => record['Incident Type'] === crimeType);
     }
 
     const hourlyCounts = Array(24).fill(0);
+    let validTimeCount = 0;
     
     data.forEach(record => {
-        const timeStr = record['Date/Time Occurred'].split(' ')[1];
-        if (timeStr) {
-            const hour = parseInt(timeStr.split(':')[0]);
-            hourlyCounts[hour]++;
+        // Skip if date/time is missing or doesn't have time part
+        if (!record['Date/Time Occurred']) return;
+        
+        const parts = record['Date/Time Occurred'].split(' ');
+        if (parts.length < 2) return;
+        
+        try {
+            const timeStr = parts[1];
+            const hourPart = timeStr.split(':')[0];
+            
+            // Check for valid hour (0-23)
+            if (hourPart && !isNaN(hourPart)) {
+                const hour = parseInt(hourPart);
+                if (hour >= 0 && hour < 24) {
+                    hourlyCounts[hour]++;
+                    validTimeCount++;
+                }
+            }
+        } catch (e) {
+            console.warn("Error parsing time:", record['Date/Time Occurred']);
         }
     });
 
-    const numDays = new Set(data.map(record => record['Date/Time Occurred'].split(' ')[0])).size;
+    // If no valid times, display a message
+    if (validTimeCount === 0) {
+        displayNoDataMessage('timeAnalysisChart', 'No valid time data available for time analysis');
+        return;
+    }
+
+    // Calculate days based on unique dates to avoid division by zero
+    const uniqueDates = new Set();
+    data.forEach(record => {
+        if (record['Date/Time Occurred']) {
+            const datePart = record['Date/Time Occurred'].split(' ')[0];
+            if (datePart) uniqueDates.add(datePart);
+        }
+    });
+    const numDays = Math.max(1, uniqueDates.size); // Ensure at least 1 to avoid division by zero
     
-    const avgOccurrencesPerHour = hourlyCounts.map(count => (count / (numDays || 1)).toFixed(2));
+    const avgOccurrencesPerHour = hourlyCounts.map(count => (count / numDays).toFixed(2));
 
     const plotlyData = [{
         x: Array.from({length: 24}, (_, i) => i),
@@ -681,10 +835,22 @@ function createTimeAnalysis(data, crimeType) {
 
 function createIncidentStatusBreakdown(data) {
     const statusCounts = {};
+    let hasValidStatus = false;
+    
     data.forEach(record => {
+        // Skip if disposition is missing
+        if (!record['Disposition']) return;
+        
         const status = record['Disposition'];
         statusCounts[status] = (statusCounts[status] || 0) + 1;
+        hasValidStatus = true;
     });
+
+    // If no valid status, display a message
+    if (!hasValidStatus) {
+        displayNoDataMessage('incidentStatusChart', 'No valid status data available');
+        return;
+    }
 
     const plotlyData = [{
         values: Object.values(statusCounts),
@@ -713,22 +879,44 @@ function createIncidentStatusBreakdown(data) {
 
 
 function createDollarAmountVisualization(data) {
-    const dollarIncidents = data.filter(record => record['Incident Type'].includes('$'));
+    // Extract dollar amount incidents
+    const dollarIncidents = data.filter(record => record['Incident Type'] && record['Incident Type'].includes('$'));
+    
+    if (dollarIncidents.length === 0) {
+        displayNoDataMessage('dollarAmountChart', 'No dollar amount data available');
+        return;
+    }
 
     const theftData = [];
     
     dollarIncidents.forEach(record => {
         const incidentType = record['Incident Type'];
+        // Improved regex to handle various dollar amount formats
         const matches = incidentType.match(/\$(\d+(?:,\d+)*(?:\.\d+)?)/);
         
         if (matches) {
-            const amount = parseFloat(matches[1].replace(',', ''));
-            theftData.push({
-                type: incidentType,
-                amount: amount
-            });
+            try {
+                // Remove commas and convert to float
+                const amountString = matches[1].replace(/,/g, '');
+                const amount = parseFloat(amountString);
+                
+                if (!isNaN(amount)) {
+                    theftData.push({
+                        type: incidentType,
+                        amount: amount
+                    });
+                }
+            } catch (e) {
+                console.warn("Error parsing dollar amount:", incidentType);
+            }
         }
     });
+
+    // If no valid theft data, display a message
+    if (theftData.length === 0) {
+        displayNoDataMessage('dollarAmountChart', 'No valid dollar amount data could be extracted');
+        return;
+    }
 
     const groupedData = {};
     theftData.forEach(item => {
