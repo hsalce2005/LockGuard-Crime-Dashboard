@@ -59,7 +59,7 @@ A web-based interactive dashboard for visualizing and analyzing campus crime dat
 
 ### Daily Dashboard Data Format
 
-Data can be scraped using the Python scripts within the `webscrape` folder. If formatting is an issue, scripts within the `cleaning`.
+Data can be scraped using the Python scripts within the `webscrape` folder. If formatting is an issue after scraping, scripts within the `cleaning` folder.
 
 CSV files for the daily dashboard should contain (at least) the following columns:
 - `Incident Type`: Type of crime or incident
