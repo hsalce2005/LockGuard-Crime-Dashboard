@@ -8,7 +8,7 @@ Date/Time Reported,Case Number,Incident Type,Location,Disposition
 4/28/25,2025-01984,Theft From Building,240 S 31st St,Active
 4/28/25,2025-01982,Theft Other,3932 Pine St,Active
 4/27/25,2025-01980,Retail Theft,4233 Chestnut St,Active
-4/27/25,2025-01979,Robbery Retail-gun,4233 Chestnut St,
+4/27/25,2025-01979,Robbery Retail-gun,4233 Chestnut St,null
 4/27/25,2025-01978,Theft From Building,4239 Baltimore Ave,Active
 4/26/25,2025-01977,Retail Theft,4233 Chestnut St,Active
 4/26/25,2025-01976,Retail Theft,4233 Chestnut St,Active
@@ -17,16 +17,16 @@ Date/Time Reported,Case Number,Incident Type,Location,Disposition
 4/25/25,2025-01973,Retail Theft,4233 Chestnut St,Active
 4/28/25,2025-01971,Theft From Building,51 N 39th St,Active
 4/27/25,2025-01964,Bike Theft,4201 Walnut St,Active
-4/26/25,2025-01946,Assault,3909 Spruce St,
+4/26/25,2025-01946,Assault,3909 Spruce St,null
 4/26/25,2025-01945,Theft Other,233 S 33rd St,Active
-4/26/25,2025-01942,Sex Offense,4000 Spruce St,
+4/26/25,2025-01942,Sex Offense,4000 Spruce St,null
 4/26/25,2025-01935,Auto Theft,3400 Spruce St,Active
 4/26/25,2025-01933,Theft From Building,3935 Walnut St,Active
 4/26/25,2025-01931,Retail Theft,3744 Spruce St,Active
 4/25/25,2025-01922,Theft From Building,233 S 33rd St,Active
 4/25/25,2025-01921,Theft From Building,231 S 33rd St,Active
 4/25/25,2025-01911,Retail Theft,3744 Spruce St,Active
-4/25/25,2025-01908,Aggravated Assault-gun,3800 Locust Walk,
+4/25/25,2025-01908,Aggravated Assault-gun,3800 Locust Walk,null
 4/24/25,2025-01896,Assault,4001 Walnut St,Active
 4/24/25,2025-01893,Theft Other,3100 Walnut St,Active
 4/23/25,2025-01875,Theft Other,3600 Walnut St,Active
@@ -45,7 +45,7 @@ Date/Time Reported,Case Number,Incident Type,Location,Disposition
 4/18/25,2025-01827,Retail Theft,4233 Chestnut St,Active
 4/18/25,2025-01826,Retail Theft,3330 Market St,Active
 4/21/25,2025-01825,Burglary,214 St Marks Sq,Active
-4/18/25,2025-01795,Auto Theft,210 S 34th St,
+4/18/25,2025-01795,Auto Theft,210 S 34th St,null
 4/18/25,2025-01791,Theft Other,329 S 42nd St,Active
 4/18/25,2025-01788,Burglary,3611 Walnut St,Active
 4/18/25,2025-01787,Auto Theft,233 S 33rd St,Active
@@ -56,20 +56,20 @@ Date/Time Reported,Case Number,Incident Type,Location,Disposition
 4/17/25,2025-01758,Theft From Vehicle,300 S 34th St,Active
 4/17/25,2025-01757,Auto Theft,3800 Powelton Ave,Active
 4/16/25,2025-01753,Retail Theft,3744 Spruce St,Active
-4/16/25,2025-01746,Fraud,,Closed/ Inactive
+4/16/25,2025-01746,Fraud,null,Closed/ Inactive
 4/16/25,2025-01744,Bike Theft,3730 Walnut St,Active
 4/16/25,2025-01742,Assault,100 S 40th St,Active
 4/15/25,2025-01739,Assault,100 S 40th St,Active
 4/15/25,2025-01738,Auto Theft,4000 Walnut St,Active
 4/15/25,2025-01737,Retail Theft,4233 Chestnut St,Active
 4/16/25,2025-01736,Bike Theft,3400 Spruce St,Active
-4/15/25,2025-01734,Disorderly Conduct,3401 Grays Ferry Ave,
+4/15/25,2025-01734,Disorderly Conduct,3401 Grays Ferry Ave,null
 4/14/25,2025-01720,Auto Theft,4000 Market St,Active
 4/14/25,2025-01719,Retail Theft,4233 Chestnut St,Active
 4/14/25,2025-01718,Auto Theft,3401 Civic Center Blvd,Active
 4/15/25,2025-01717,Theft From Vehicle,3300 Walnut St,Active
 4/15/25,2025-01716,Theft From Vehicle,3300 Walnut St,Active
-4/15/25,2025-01713,Auto Theft,210 S 34th St,
+4/15/25,2025-01713,Auto Theft,210 S 34th St,null
 4/14/25,2025-01706,Assault,4000 Pine St,Active
 4/14/25,2025-01703,Auto Theft,3400 Civic Center Blvd,Active
 4/11/25,2025-01699,Retail Theft,3330 Market St,Active
@@ -82,9 +82,9 @@ Date/Time Reported,Case Number,Incident Type,Location,Disposition
 4/10/25,2025-01650,Retail Theft,4001 Walnut St,Active
 4/10/25,2025-01649,Theft From Building,3535 Market St,Active
 4/10/25,2025-01643,Theft From Building,3730 Walnut St,Active
-4/9/25,2025-01642,Retail Theft,3330 Market St,
+4/9/25,2025-01642,Retail Theft,3330 Market St,null
 4/9/25,2025-01631,Auto Theft,210 S 34th St,Active
 4/9/25,2025-01626,Auto Theft,3330 Walnut St,Active
 4/8/25,2025-01618,Theft From Building,3200 Chestnut St,Active
-4/8/25,2025-01617,Retail Theft,3330 Market St,
+4/8/25,2025-01617,Retail Theft,3330 Market St,null
 4/8/25,2025-01611,Bike Theft,3400 Spruce St,Active
