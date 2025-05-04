@@ -1,11 +1,13 @@
 // Global variables
 let globalData = {};
 let availableFiles = [
-    "BentleyUniversity.csv",
-    "GCU.csv",
-    "GeorgiaState.csv",
-    "StanfordUniversity.csv",
-    "UniversityOfColorado.csv",
+  "BentleyUniversity.csv",
+  "GCU.csv",
+  "GeorgiaState.csv",
+  "ProvidenceCollege.csv",
+  "StanfordUniversity.csv",
+  "UMiami.csv",
+  "UniversityOfColorado.csv"
 ];
 
 // Initialize the dashboard
