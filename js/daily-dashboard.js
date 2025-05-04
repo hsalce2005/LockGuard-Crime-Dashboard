@@ -54,6 +54,151 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('applyTimeCrimeFilter').addEventListener('click', updateVisualizations);
 });
 
+/**
+ * Safely parse a date string with multiple format support
+ * @param {string} dateStr - The date string to parse
+ * @return {Date|null} - A valid Date object or null if parsing failed
+ */
+function safeDateParse(dateStr) {
+  if (!dateStr || typeof dateStr !== 'string') return null;
+  
+  // Try different date formats
+  const cleanDateStr = dateStr.trim();
+  let date;
+  
+  // Try different formats
+  const formats = [
+    // Try direct Date parsing first (ISO format)
+    () => new Date(cleanDateStr),
+    // MM/DD/YYYY
+    () => {
+      const parts = cleanDateStr.split('/');
+      if (parts.length !== 3) return null;
+      return new Date(parts[2], parts[0] - 1, parts[1]);
+    },
+    // DD/MM/YYYY
+    () => {
+      const parts = cleanDateStr.split('/');
+      if (parts.length !== 3) return null;
+      return new Date(parts[2], parts[1] - 1, parts[0]);
+    },
+    // YYYY-MM-DD
+    () => {
+      const parts = cleanDateStr.split('-');
+      if (parts.length !== 3) return null;
+      return new Date(parts[0], parts[1] - 1, parts[2]);
+    }
+  ];
+  
+  // Try each format until one works
+  for (const formatFn of formats) {
+    try {
+      date = formatFn();
+      if (date && !isNaN(date.getTime())) {
+        return date;
+      }
+    } catch (e) {
+      // Continue to next format
+    }
+  }
+  
+  // If we got here, none of the formats worked
+  return null;
+}
+
+/**
+ * Safely extracts date and time parts from a datetime string
+ * @param {string} dateTimeStr - The datetime string to parse
+ * @return {Object} - An object with date and time properties
+ */
+function extractDateTimeParts(dateTimeStr) {
+  if (!dateTimeStr || typeof dateTimeStr !== 'string') {
+    return { date: null, time: null };
+  }
+  
+  let datePart = null;
+  let timePart = null;
+  
+  // Determine format: could be "MM/DD/YYYY HH:MM:SS" or "YYYY-MM-DD HH:MM:SS" or others
+  if (dateTimeStr.includes(' ')) {
+    // Contains both date and time separated by space
+    const parts = dateTimeStr.split(' ');
+    datePart = parts[0];
+    timePart = parts[1] || null;
+  } else if (dateTimeStr.includes('T')) {
+    // ISO format "YYYY-MM-DDTHH:MM:SS"
+    const parts = dateTimeStr.split('T');
+    datePart = parts[0];
+    timePart = parts[1] || null;
+  } else {
+    // Only contains date
+    datePart = dateTimeStr;
+  }
+  
+  return { date: datePart, time: timePart };
+}
+
+/**
+ * Safely extracts the hour from a time string
+ * @param {string} timeStr - The time string (HH:MM:SS or HH:MM)
+ * @return {number|null} - The hour as a number, or null if invalid
+ */
+function extractHour(timeStr) {
+  if (!timeStr || typeof timeStr !== 'string') return null;
+  
+  try {
+    // Handle both 12-hour and 24-hour formats
+    const cleanTimeStr = timeStr.trim().toUpperCase();
+    const isPM = cleanTimeStr.includes('PM');
+    const isAM = cleanTimeStr.includes('AM');
+    
+    // Remove AM/PM indicators if present
+    let hourStr = cleanTimeStr
+      .replace(/\s?[AP]M/, '')  // Remove AM/PM
+      .split(':')[0];           // Get hour part
+    
+    if (!hourStr || isNaN(hourStr)) return null;
+    
+    let hour = parseInt(hourStr, 10);
+    
+    // Convert 12-hour format to 24-hour
+    if (isPM && hour < 12) hour += 12;
+    if (isAM && hour === 12) hour = 0;
+    
+    // Validate hour range
+    if (hour >= 0 && hour < 24) {
+      return hour;
+    }
+    
+    return null;
+  } catch (e) {
+    console.warn("Error extracting hour:", e);
+    return null;
+  }
+}
+
+/**
+ * Safely converts any value to an integer
+ * @param {*} value - The value to parse
+ * @param {number} defaultValue - The default value if parsing fails
+ * @return {number} - The parsed integer or default value
+ */
+function safeParseInt(value, defaultValue = 0) {
+  // Handle null, undefined, empty string
+  if (value === null || value === undefined || value === '') {
+    return defaultValue;
+  }
+  
+  // Handle string with non-numeric characters
+  if (typeof value === 'string') {
+    // Remove non-numeric characters except decimal point and negative sign
+    value = value.replace(/[^\d.-]/g, '');
+  }
+  
+  const parsed = parseInt(value, 10);
+  return isNaN(parsed) ? defaultValue : parsed;
+}
+
 // Helper function to create error container
 function createErrorContainer() {
     if (!document.getElementById('errorContainer')) {
@@ -223,12 +368,22 @@ function loadSingleFile(filename) {
                     console.log(`Parsing CSV data for ${filename} (first 100 chars):`, text.substring(0, 100));
                     
                     try {
+                        // Detect and handle BOM (Byte Order Mark) if present
+                        // Some CSV exports from Excel/database programs include BOM characters
+                        if (text.charCodeAt(0) === 0xFEFF) {
+                            text = text.substring(1);
+                        }
+                        
                         // Parse CSV data using Papa Parse with more robust options
                         const result = Papa.parse(text, { 
                             header: true, 
                             dynamicTyping: true, 
                             skipEmptyLines: true,
-                            delimitersToGuess: [',', '\t', '|', ';'] // Try different delimiters
+                            delimitersToGuess: [',', '\t', '|', ';'], // Try different delimiters
+                            transformHeader: header => header ? header.trim() : 'Unknown', // Trim headers automatically
+                            error: (error) => {
+                                console.error("PapaParse error:", error);
+                            }
                         });
                         
                         if (result.errors && result.errors.length > 0) {
@@ -239,15 +394,19 @@ function loadSingleFile(filename) {
                         if (result.meta && result.meta.fields) {
                             const trimmedFieldsMap = {};
                             result.meta.fields.forEach(field => {
-                                trimmedFieldsMap[field] = field.trim();
+                                if (field) { // Only process non-null fields
+                                    trimmedFieldsMap[field] = field.trim();
+                                }
                             });
                             
                             // Apply trimmed field names to data
                             result.data = result.data.map(record => {
                                 const cleanedRecord = {};
                                 Object.keys(record).forEach(key => {
-                                    const cleanKey = key.trim();
-                                    cleanedRecord[cleanKey] = record[key];
+                                    if (key) { // Only process non-null keys
+                                        const cleanKey = key.trim();
+                                        cleanedRecord[cleanKey] = record[key];
+                                    }
                                 });
                                 return cleanedRecord;
                             });
@@ -260,9 +419,9 @@ function loadSingleFile(filename) {
                                 return {
                                     ...record, 
                                     'Source File': filename,
-                                    // Ensure critical fields exist
+                                    // Ensure critical fields exist with fallback values
                                     'Incident Type': record['Incident Type'] || 'Unknown',
-                                    'Date/Time Occurred': record['Date/Time Occurred'] || 'Unknown',
+                                    'Date/Time Occurred': record['Date/Time Occurred'] || null,
                                     'Location': record['Location'] || 'Unknown',
                                     'Disposition': record['Disposition'] || 'Unknown'
                                 };
@@ -309,6 +468,27 @@ function debugData(data) {
     }
 }
 
+// Helper function to display no data message
+function displayNoDataMessage(chartId, message) {
+    const chartDiv = document.getElementById(chartId);
+    if (chartDiv) {
+        Plotly.newPlot(chartId, [], {
+            title: message,
+            annotations: [{
+                text: message,
+                x: 0.5,
+                y: 0.5,
+                xref: 'paper',
+                yref: 'paper',
+                showarrow: false,
+                font: {
+                    size: 16,
+                    color: '#666'
+                }
+            }]
+        });
+    }
+}
 
 function populateCrimeTypes(data) {
     // Get all unique incident types, filter out nulls and empty strings
@@ -350,10 +530,14 @@ function setupDateSelectors(data) {
     const dates = data.records
         .map(record => {
             if (!record['Date/Time Occurred']) return null;
-            const datePart = record['Date/Time Occurred'].split(' ')[0];
-            const date = new Date(datePart);
-            // Check if date is valid
-            return isNaN(date.getTime()) ? null : date;
+            
+            // Use our helper function to extract date part
+            const { date } = extractDateTimeParts(record['Date/Time Occurred']);
+            if (!date) return null;
+            
+            // Parse the date safely
+            const parsedDate = safeDateParse(date);
+            return parsedDate; // Will be null if invalid
         })
         .filter(date => date !== null);
     
@@ -512,28 +696,6 @@ function createIncidentTypeDistribution(data) {
     Plotly.newPlot('incidentDistributionChart', plotlyData, layout, config);
 }
 
-// Handle no data available scenario
-function displayNoDataMessage(chartId, message) {
-    const chartDiv = document.getElementById(chartId);
-    if (chartDiv) {
-        Plotly.newPlot(chartId, [], {
-            title: message,
-            annotations: [{
-                text: message,
-                x: 0.5,
-                y: 0.5,
-                xref: 'paper',
-                yref: 'paper',
-                showarrow: false,
-                font: {
-                    size: 16,
-                    color: '#666'
-                }
-            }]
-        });
-    }
-}
-
 function createReportsPerMonth(data, crimeType, startDate, endDate) {
     // Filter by crime type if specified, ensuring we skip null values
     if (crimeType) {
@@ -547,11 +709,15 @@ function createReportsPerMonth(data, crimeType, startDate, endDate) {
         
         // Handle potential date parsing issues
         try {
-            const dateParts = record['Date/Time Occurred'].split(' ')[0].split('/');
-            if (dateParts.length !== 3) return;
+            const dateTimeStr = record['Date/Time Occurred'];
+            const { date } = extractDateTimeParts(dateTimeStr);
             
-            // Assume MM/DD/YYYY format
-            const month = `${dateParts[2]}-${String(dateParts[0]).padStart(2, '0')}`;
+            if (!date) return;
+            
+            const parsedDate = safeDateParse(date);
+            if (!parsedDate) return;
+            
+            const month = `${parsedDate.getFullYear()}-${String(parsedDate.getMonth() + 1).padStart(2, '0')}`;
             monthCounts[month] = (monthCounts[month] || 0) + 1;
         } catch (e) {
             console.warn("Error parsing date:", record['Date/Time Occurred']);
@@ -701,13 +867,16 @@ function createDayOfWeekAnalysis(data) {
         if (!record['Date/Time Occurred']) return;
         
         try {
-            const dateStr = record['Date/Time Occurred'].split(' ')[0];
-            const date = new Date(dateStr);
+            const dateTimeStr = record['Date/Time Occurred'];
+            const { date } = extractDateTimeParts(dateTimeStr);
             
-            if (isNaN(date.getTime())) return; // Skip invalid dates
+            if (!date) return;
+            
+            const parsedDate = safeDateParse(date);
+            if (!parsedDate || isNaN(parsedDate.getTime())) return; // Skip invalid dates
             
             hasValidDates = true;
-            const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][date.getDay()];
+            const weekday = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][parsedDate.getDay()];
             weekdayCounts[weekday]++;
         } catch (e) {
             console.warn("Error parsing date for day of week:", record['Date/Time Occurred']);
@@ -760,23 +929,20 @@ function createTimeAnalysis(data, crimeType) {
     let validTimeCount = 0;
     
     data.forEach(record => {
-        // Skip if date/time is missing or doesn't have time part
+        // Skip if date/time is missing
         if (!record['Date/Time Occurred']) return;
         
-        const parts = record['Date/Time Occurred'].split(' ');
-        if (parts.length < 2) return;
-        
+        // More robust handling of the date/time string
         try {
-            const timeStr = parts[1];
-            const hourPart = timeStr.split(':')[0];
+            const dateTimeStr = record['Date/Time Occurred'];
+            const { time } = extractDateTimeParts(dateTimeStr);
             
-            // Check for valid hour (0-23)
-            if (hourPart && !isNaN(hourPart)) {
-                const hour = parseInt(hourPart);
-                if (hour >= 0 && hour < 24) {
-                    hourlyCounts[hour]++;
-                    validTimeCount++;
-                }
+            if (!time) return; // No time component
+            
+            const hour = extractHour(time);
+            if (hour !== null) {
+                hourlyCounts[hour]++;
+                validTimeCount++;
             }
         } catch (e) {
             console.warn("Error parsing time:", record['Date/Time Occurred']);
@@ -793,8 +959,8 @@ function createTimeAnalysis(data, crimeType) {
     const uniqueDates = new Set();
     data.forEach(record => {
         if (record['Date/Time Occurred']) {
-            const datePart = record['Date/Time Occurred'].split(' ')[0];
-            if (datePart) uniqueDates.add(datePart);
+            const { date } = extractDateTimeParts(record['Date/Time Occurred']);
+            if (date) uniqueDates.add(date);
         }
     });
     const numDays = Math.max(1, uniqueDates.size); // Ensure at least 1 to avoid division by zero
