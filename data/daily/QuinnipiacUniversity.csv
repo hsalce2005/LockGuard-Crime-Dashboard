@@ -4,7 +4,7 @@ Vandalism ,2/8/25 0:00,2/8/25 12:34, Village ,Student Affairs,2500004765
  Motor Vehicle,2/8/25 1:07,2/8/25 16:51, New Rd ,Student Affairs,2500004834
 Theft  Drug Law and,2/15/25 16:51,2/15/25 0:01, Village ,Student Affairs,2500005696
 Drug Law and Liquor Law,2/16/25 3:43,2/16/25 3:43,Perlroth  ,Student Affairs,2500005838
-Violations  Drug Law,,2/18/25 15:58, Eastview ,Student Affairs,2500006259
+Violations  Drug Law,2/18/25 15:58, 2/18/25 15:58, Eastview ,Student Affairs,2500006259
 Violation  Threatening ,2/18/25 15:58,2/18/25 16:48, Grove ,Student Affairs,2500006261
  Vandalism ,2/19/25 16:48,2/19/25 1:19, Crescent ,Student Affairs,2500006326
  Breach of Peace ,2/21/25 1:19,2/21/25 16:25, Village ,Student Affairs,2500006665
@@ -39,9 +39,9 @@ Vandalism  ,4/6/25 14:38,4/6/25 14:38,Mountainview  ,Student Affairs,2500013668
 Vandalism  ,4/6/25 16:29,4/6/25 16:29,Crescent  ,Student Affairs,2500013684
 Breach of Peace  ,4/8/25 1:33,4/8/25 13:33,Irma  ,Student Affairs,2500013950
 Drug Law Violation  Liquor Law Violation ,2/24/25 15:00,3/2/25 3:47,Crescent  Mountainview ,Drug Law Violation,33401 28701
-Liquor Law Violation  ,3/17/25 23:53,,Ledges  ,Liquor Law Violation,59501- 5903
-Liquor Law Violation  ,3/17/25 0:21,,Village  ,Liquor Law Violation,51301- 51302
-Liquor Law Violation  Theft ,3/22/25 2:23,,Commons  Commons ,Liquor Law Violation,55401 57601
+Liquor Law Violation  ,3/17/25 23:53,3/17/25 23:53,Ledges  ,Liquor Law Violation,59501- 5903
+Liquor Law Violation  ,3/17/25 0:21,3/17/25 0:21,Village  ,Liquor Law Violation,51301- 51302
+Liquor Law Violation  Theft ,3/22/25 2:23,3/22/25 2:23,Commons  Commons ,Liquor Law Violation,55401 57601
 Drug Law Violation,11/23/24 19:16,11/23/24 19:16,Village,Student Affairs,2400032217
 Threatening,12/2/24 8:00,12/2/24 8:00,MC Public Safety,Student Affairs,2400033862
 Vandalism,12/6/24 2:49,12/6/24 2:49,Irma,Student Affairs,2400034556
