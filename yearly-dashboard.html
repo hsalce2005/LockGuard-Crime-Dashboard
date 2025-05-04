@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Crime Yearly Analytics</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        body {
+            padding-top: 20px;
+            padding-bottom: 50px;
+        }
+        .chart-container {
+            margin-bottom: 30px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            padding: 15px;
+        }
+        .chart-title {
+            font-weight: bold;
+            margin-bottom: 15px;
+            color: #343a40;
+        }
+        .navbar {
+            margin-bottom: 30px;
+            background-color: #003366;
+        }
+        .navbar-brand {
+            color: #fff;
+            font-weight: bold;
+        }
+        .form-select, .form-control {
+            margin-bottom: 10px;
+        }
+        .filters-card {
+            margin-bottom: 30px;
+            background-color: #f8f9fa;
+            border: 1px solid #dee2e6;
+            border-radius: 8px;
+        }
+        .filter-control {
+            background-color: #f8f9fa;
+            padding: 10px;
+            border-radius: 6px;
+            border: 1px solid #dee2e6;
+        }
+        .alert {
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark">
+        <div class="container-fluid">
+            <a class="navbar-brand" href="#">Campus Crime Yearly Analytics</a>
+            <div class="d-flex">
+                <a href="index.html" class="btn btn-outline-light">Back to Home</a>
+            </div>
+        </div>
+    </nav>
+
+    <div class="container">
+        <div class="row mb-3">
+            <div class="col-md-12">
+                <div class="card filters-card">
+                    <div class="card-body">
+                        <h5 class="card-title">Dataset Selection</h5>
+                        <form id="main-form">
+                            <div class="row">
+                                <div class="col-md-6">
+                                    <label for="fileSelector" class="form-label">Select Dataset:</label>
+                                    <select class="form-select" id="fileSelector" name="selected_file">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Crime Type Distribution</h5>
+                    <div id="crimeDistributionChart">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Yearly Crime Trends</h5>
+                    <div class="filter-control mb-3">
+                        <form>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="crimeTypeSelector" class="form-label">Filter by Crime Type:</label>
+                                    <select class="form-select" id="crimeTypeSelector" name="crime_type">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="yearlyTrendsChart">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Location Comparison</h5>
+                    <div class="filter-control mb-3">
+                        <form>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="yearSelector" class="form-label">Filter by Year:</label>
+                                    <select class="form-select" id="yearSelector" name="selected_year">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="locationComparisonChart">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Crime Category Analysis</h5>
+                    <div id="crimeCategoryChart">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Year-over-Year Analysis</h5>
+                    <div class="filter-control mb-3">
+                        <form>
+                            <div class="row">
+                                <div class="col">
+                                    <label for="locationSelector" class="form-label">Filter by Location:</label>
+                                    <select class="form-select" id="locationSelector" name="selected_location">
+                                    </select>
+                                </div>
+                            </div>
+                        </form>
+                    </div>
+                    <div id="yearOverYearChart">
+                    </div>
+                </div>
+            </div>
+
+            <div class="col-md-6">
+                <div class="chart-container">
+                    <h5 class="chart-title">Total Offenses by Location</h5>
+                    <div id="totalOffensesChart">
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingMessage" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000;">
+        <div class="d-flex align-items-center">
+            <div class="spinner-border text-primary me-3" role="status"></div>
+            <span>Loading data, please wait...</span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/yearly-dashboard.js"></script>
+</body>
+</html>

@@ -1,0 +1,61 @@
+﻿Criminal Offenses,Year,Non Residential Facility,Residential Facility,Non Campus Building or Property,Public Property
+Murder/Non-Negligent Manslaughter,2021,0,0,0,0
+Murder/Non-Negligent Manslaughter,2022,0,0,0,0
+Murder/Non-Negligent Manslaughter,2023,0,0,0,0
+Manslaughter by Negligence,2021,0,0,0,0
+Manslaughter by Negligence,2022,0,0,0,0
+Manslaughter by Negligence,2023,0,0,0,0
+Robbery,2021,0,0,0,0
+Robbery,2022,0,0,0,1
+Robbery,2023,0,0,0,1
+Aggravated Assault,2021,0,0,0,1
+Aggravated Assault,2022,0,0,0,2
+Aggravated Assault,2023,0,0,0,0
+Burglary,2021,2,2,0,0
+Burglary,2022,0,0,0,0
+Burglary,2023,1,1,0,0
+Motor Vehicle Theft,2021,0,0,0,0
+Motor Vehicle Theft,2022,0,0,0,0
+Motor Vehicle Theft,2023,0,0,0,1
+Arson,2021,0,0,0,0
+Arson,2022,2,0,0,0
+Arson,2023,0,0,0,0
+Rape,2021,4,4,0,0
+Rape,2022,4,4,3,0
+Rape,2023,3,2,0,0
+Fondling,2021,3,3,0,0
+Fondling,2022,5,5,0,0
+Fondling,2023,0,0,0,0
+Incest,2021,0,0,0,0
+Incest,2022,0,0,0,0
+Incest,2023,0,0,0,0
+Statutory Rape,2021,0,0,0,0
+Statutory Rape,2022,0,0,0,0
+Statutory Rape,2023,0,0,0,0
+Stalking,2021,0,0,0,0
+Stalking,2022,0,0,0,0
+Stalking,2023,0,0,0,0
+Domestic Violence,2021,0,0,0,0
+Domestic Violence,2022,0,0,0,0
+Domestic Violence,2023,0,0,0,0
+Dating Violence,2021,0,0,0,0
+Dating Violence,2022,5,5,0,0
+Dating Violence,2023,1,0,0,0
+Arrests: Weapon Law Violations,2021,0,0,0,3
+Arrests: Weapon Law Violations,2022,0,0,0,0
+Arrests: Weapon Law Violations,2023,0,0,0,0
+Arrests: Drug Law Violations,2021,0,0,0,0
+Arrests: Drug Law Violations,2022,0,0,0,0
+Arrests: Drug Law Violations,2023,0,0,0,0
+Arrests: Liquor Law Violations,2021,0,0,0,0
+Arrests: Liquor Law Violations,2022,0,0,0,0
+Arrests: Liquor Law Violations,2023,0,0,0,0
+Disciplinary Referrals: Weapons Law Violations,2021,1,1,0,0
+Disciplinary Referrals: Weapons Law Violations,2022,2,2,0,0
+Disciplinary Referrals: Weapons Law Violations,2023,0,0,0,0
+Disciplinary Referrals: Drug Law Violations,2021,0,0,0,0
+Disciplinary Referrals: Drug Law Violations,2022,0,0,0,0
+Disciplinary Referrals: Drug Law Violations,2023,1,1,0,0
+Disciplinary Referrals: Liquor Law Violations,2021,478,462,0,0
+Disciplinary Referrals: Liquor Law Violations,2022,533,513,0,0
+Disciplinary Referrals: Liquor Law Violations,2023,299,283,0,1

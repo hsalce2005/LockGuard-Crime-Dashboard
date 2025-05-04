@@ -1,0 +1,61 @@
+﻿Criminal Offenses,Year,Residential Facility,Non Residential Facility,Non Campus Building or Property,Public Property
+Murder,2020,0,0,0,0
+Murder,2021,0,0,0,0
+Murder,2022,0,0,0,0
+Manslaughter by negligence,2020,0,0,0,0
+Manslaughter by negligence,2021,0,0,0,0
+Manslaughter by negligence,2022,0,0,0,0
+Robbery,2020,0,2,0,0
+Robbery,2021,0,3,0,0
+Robbery,2022,1,2,0,0
+Aggravated assault,2020,4,21,1,0
+Aggravated assault,2021,9,16,0,0
+Aggravated assault,2022,9,20,0,0
+Burglary,2020,15,40,2,0
+Burglary,2021,8,31,0,0
+Burglary,2022,17,25,0,0
+Motor vehicle theft,2020,0,19,5,0
+Motor vehicle theft,2021,0,16,5,0
+Motor vehicle theft,2022,8,149,1,0
+Arson,2020,0,0,0,0
+Arson,2021,1,4,0,0
+Arson,2022,0,1,0,0
+Rape,2020,10,15,0,0
+Rape,2021,13,30,0,0
+Rape,2022,23,33,0,0
+Fondling,2020,5,17,0,0
+Fondling,2021,6,14,0,0
+Fondling,2022,10,25,0,0
+Incest,2020,0,0,0,0
+Incest,2021,0,0,0,0
+Incest,2022,0,0,0,0
+Statutory rape,2020,0,0,0,0
+Statutory rape,2021,0,0,0,0
+Statutory rape,2022,0,1,0,0
+Dating violence,2020,0,0,0,0
+Dating violence,2021,0,0,0,0
+Dating violence,2022,0,0,1,0
+Domestic violence,2020,3,8,0,0
+Domestic violence,2021,9,13,0,0
+Domestic violence,2022,6,16,0,0
+Stalking,2020,9,26,0,0
+Stalking,2021,12,30,0,0
+Stalking,2022,1,41,0,0
+Liquor Law Arrests,2020,2,5,0,0
+Liquor Law Arrests,2021,0,1,0,0
+Liquor Law Arrests,2022,0,1,0,0
+Drug Law Arrests,2020,0,16,0,0
+Drug Law Arrests,2021,0,6,0,1
+Drug Law Arrests,2022,2,14,0,0
+Illegal Weapons Possession Arrests,2020,0,6,0,0
+Illegal Weapons Possession Arrests,2021,1,1,0,0
+Illegal Weapons Possession Arrests,2022,0,7,0,0
+Liquor Law Referrals,2020,1,1,0,0
+Liquor Law Referrals,2021,2,2,0,0
+Liquor Law Referrals,2022,1,6,0,0
+Drug Law Referrals,2020,2,2,0,0
+Drug Law Referrals,2021,2,2,0,0
+Drug Law Referrals,2022,0,1,0,0
+Illegal Weapons Possession Referrals,2020,0,0,0,0
+Illegal Weapons Possession Referrals,2021,1,1,0,0
+Illegal Weapons Possession Referrals,2022,1,2,0,0

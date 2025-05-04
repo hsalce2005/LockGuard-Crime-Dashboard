@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Campus Crime Logs Dashboard</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+    <style>
+        .visualization-container {
+            min-height: 400px;
+            margin-bottom: 20px;
+        }
+        .card {
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+            margin-bottom: 20px;
+        }
+        .dashboard-header {
+            background-color: #f8f9fa;
+            padding: 20px 0;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="dashboard-header">
+        <div class="container">
+            <h1 class="text-center">Campus Crime Logs Dashboard</h1>
+            <div class="text-center mt-2">
+                <a href="index.html" class="btn btn-outline-secondary">Back to Home</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="container">
+        <!-- File Selection Form -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Data Source Selection</h5>
+            </div>
+            <div class="card-body">
+                <form id="fileSelectionForm">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="fileSelector" class="form-label">Select Campus Crime Log:</label>
+                            <select name="selected_file" id="fileSelector" class="form-select">
+                            </select>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Incident Type Distribution -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Incident Types Distribution</h5>
+            </div>
+            <div class="card-body">
+                <div class="visualization-container" id="incidentDistributionChart">
+                </div>
+            </div>
+        </div>
+
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Reports Per Month</h5>
+            </div>
+            <div class="card-body">
+                <form id="reportsPerMonthForm" class="mb-4">
+                    <div class="row mb-3">
+                        <div class="col-md-6">
+                            <label for="crimeTypeSelector" class="form-label">Filter by Crime Type:</label>
+                            <select name="crime_type" id="crimeTypeSelector" class="form-select">
+                                <option value="">All Crime Types</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="row mb-3">
+                        <div class="col-md-5">
+                            <label for="startDateSelector" class="form-label">Start Month:</label>
+                            <div class="input-group">
+                                <input type="month" id="startDateSelector" name="start_date" class="form-select">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">Select</button>
+                                <ul class="dropdown-menu dropdown-menu-end" style="max-height: 300px; overflow-y: auto;" id="startDateDropdown">
+                                    <li><a class="dropdown-item" href="#" onclick="document.getElementById('startDateSelector').value=''; return false;">Clear</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-5">
+                            <label for="endDateSelector" class="form-label">End Month:</label>
+                            <div class="input-group">
+                                <input type="month" id="endDateSelector" name="end_date" class="form-select">
+                                <button class="btn btn-outline-secondary dropdown-toggle" type="button"
+                                        data-bs-toggle="dropdown" aria-expanded="false">Select</button>
+                                <ul class="dropdown-menu dropdown-menu-end" style="max-height: 300px; overflow-y: auto;" id="endDateDropdown">
+                                    <li><a class="dropdown-item" href="#" onclick="document.getElementById('endDateSelector').value=''; return false;">Clear</a></li>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" id="applyDateFilters" class="btn btn-primary w-100">Apply Filters</button>
+                        </div>
+                    </div>
+                </form>
+
+                <div class="visualization-container" id="reportsPerMonthChart">
+                </div>
+            </div>
+        </div>
+
+        <!-- Location Heatmap -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Top Crime Locations</h5>
+            </div>
+            <div class="card-body">
+                <div class="visualization-container" id="locationHeatmapChart">
+                </div>
+            </div>
+        </div>
+
+        <!-- Day of Week Analysis -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Day of Week Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="visualization-container" id="dayOfWeekChart">
+                </div>
+            </div>
+        </div>
+
+        <!-- Time Analysis -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Time of Day Analysis</h5>
+            </div>
+            <div class="card-body">
+                <form id="timeAnalysisForm" class="mb-4">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <label for="timeCrimeTypeSelector" class="form-label">Filter by Crime Type:</label>
+                            <select name="time_crime_type" id="timeCrimeTypeSelector" class="form-select">
+                                <option value="">All Crime Types</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 d-flex align-items-end">
+                            <button type="button" id="applyTimeCrimeFilter" class="btn btn-primary">Apply Filter</button>
+                        </div>
+                    </div>
+                </form>
+                <div class="visualization-container" id="timeAnalysisChart">
+                </div>
+            </div>
+        </div>
+
+        <!-- Incident Status -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Incident Status Breakdown</h5>
+            </div>
+            <div class="card-body">
+                <div class="visualization-container" id="incidentStatusChart">
+                </div>
+            </div>
+        </div>
+
+        <!-- Dollar Amount Visualization -->
+        <div class="card mb-4">
+            <div class="card-header">
+                <h5 class="mb-0">Dollar Amount Analysis</h5>
+            </div>
+            <div class="card-body">
+                <div class="visualization-container" id="dollarAmountChart">
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="loadingMessage" style="display: none; position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background-color: rgba(255, 255, 255, 0.9); padding: 20px; border-radius: 5px; box-shadow: 0 2px 10px rgba(0,0,0,0.2); z-index: 1000;">
+        <div class="d-flex align-items-center">
+            <div class="spinner-border text-primary me-3" role="status"></div>
+            <span>Loading data, please wait...</span>
+        </div>
+    </div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0-alpha1/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="js/daily-dashboard.js"></script>
+</body>
+</html>
